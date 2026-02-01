@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyMate - Advanced Note-Taking App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Kalam&family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            /* Default theme (Light) */
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --bg-color: #f9f9f9;
+            --text-color: #2d3436;
+            --border-color: #dfe6e9;
+            --highlight-color: #ffeaa7;
+            --panel-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+            --editor-bg: #ffffff;
+            --pdf-width: 40%;
+            --video-height: 60%;
+        }
+
+        /* Color Themes */
+        .theme-light {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --bg-color: #f9f9f9;
+            --text-color: #2d3436;
+            --border-color: #e0e0e0;
+            --highlight-color: #f5f5f5;
+            --panel-bg: #ffffff;
+            --sidebar-bg: #ffffff;
+            --editor-bg: #ffffff;
+        }
+
+        .theme-sepia {
+            --primary-color: #8b5a2b;
+            --secondary-color: #d2b48c;
+            --bg-color: #f4ecd8;
+            --text-color: #5b4636;
+            --border-color: #d2b48c;
+            --highlight-color: #f0e0b0;
+            --panel-bg: #f8f1e5;
+            --sidebar-bg: #f8f1e5;
+            --editor-bg: #fff8e8;
+        }
+
+        .theme-green {
+            --primary-color: #2e7d32;
+            --secondary-color: #66bb6a;
+            --bg-color: #e8f5e9;
+            --text-color: #1b5e20;
+            --border-color: #a5d6a7;
+            --highlight-color: #c8e6c9;
+            --panel-bg: #f1f8e9;
+            --sidebar-bg: #f1f8e9;
+            --editor-bg: #ffffff;
+        }
+
+        .theme-blue {
+            --primary-color: #1565c0;
+            --secondary-color: #42a5f5;
+            --bg-color: #e3f2fd;
+            --text-color: #0d47a1;
+            --border-color: #90caf9;
+            --highlight-color: #bbdefb;
+            --panel-bg: #e8f4fc;
+            --sidebar-bg: #e8f4fc;
+            --editor-bg: #ffffff;
+        }
+
+        .theme-pink {
+            --primary-color: #ad1457;
+            --secondary-color: #ec407a;
+            --bg-color: #fce4ec;
+            --text-color: #880e4f;
+            --border-color: #f48fb1;
+            --highlight-color: #f8bbd0;
+            --panel-bg: #fce8f1;
+            --sidebar-bg: #fce8f1;
+            --editor-bg: #ffffff;
+        }
+
+        .theme-dark {
+            --primary-color: #a29bfe;
+            --secondary-color: #6c5ce7;
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --border-color: #424242;
+            --highlight-color: #1e1e1e;
+            --panel-bg: #1e1e1e;
+            --sidebar-bg: #1e1e1e;
+            --editor-bg: #2d2d2d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Patrick Hand', cursive;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        body.fullscreen-mode {
+            overflow: auto;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 10;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-hidden {
+            transform: translateX(-100%);
+            position: absolute;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-section h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .sidebar-btn {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-btn i {
+            margin-right: 8px;
+        }
+
+        .sidebar-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .sidebar-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .sidebar-tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .sidebar-content {
+            display: none;
+        }
+
+        .sidebar-content.active {
+            display: block;
+        }
+
+        .saved-notes-list,
+        .saved-courses-list,
+        .course-lectures-list {
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .saved-notes-list::-webkit-scrollbar,
+        .saved-courses-list::-webkit-scrollbar,
+        .course-lectures-list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .saved-note-item,
+        .saved-course-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-note-item:hover,
+        .saved-course-item:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .item-delete {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .lecture-item {
+            padding: 8px;
+            margin-bottom: 3px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .lecture-item:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .lecture-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Main content styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top bar styles */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 5;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-selector, .font-selector, .fullscreen-toggle, .layout-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: inherit;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: var(--highlight-color);
+        }
+
+        .fullscreen-toggle.active {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Course title bar */
+        .course-title-bar {
+            padding: 10px 20px;
+            background-color: var(--highlight-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 4;
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .course-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .course-control-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .course-control-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* Triple view container */
+        .triple-view {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* PDF viewer (right side, custom width) */
+        .pdf-viewer-section {
+            flex: 0 0 var(--pdf-width);
+            padding: 15px;
+            overflow: auto;
+            background-color: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border-color);
+            position: relative;
+            transition: flex 0.3s ease;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .pdf-viewer-section::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .pdf-resize-handle {
+            width: 10px;
+            height: 100%;
+            position: absolute;
+            left: -5px;
+            top: 0;
+            cursor: col-resize;
+            z-index: 10;
+        }
+
+        .pdf-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pdf-control-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pdf-control-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .pdf-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--highlight-color);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pdf-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Split view for Video and Notes (left side) */
+        .video-notes-split {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Video viewer (top, custom height) */
+        .video-viewer {
+            flex: 0 0 var(--video-height);
+            padding: 15px;
+            overflow: auto;
+            background-color: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            transition: flex 0.3s ease;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .video-viewer::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .video-resize-handle {
+            height: 10px;
+            width: 100%;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            cursor: row-resize;
+            z-index: 10;
+        }
+
+        .video-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .video-control-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .video-control-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--highlight-color);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9; /* Standard video aspect ratio */
+        }
+
+        .video-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        .youtube-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Notes panel (bottom) */
+        .notes-panel {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+            background-color: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .notes-panel::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .notes-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .formatting-toolbar {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .format-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 3px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .format-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .notes-editor {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            outline: none;
+            font-family: inherit;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: none;
+            overflow-y: auto;
+            background-color: var(--editor-bg);
+            transition: all 0.3s ease;
+            min-height: 200px;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .notes-editor::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .notes-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .save-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .save-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .save-btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        /* Fullscreen styles */
+        .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .fullscreen-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--panel-bg);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .fullscreen-header {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .fullscreen-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .exit-fullscreen-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .fullscreen-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .modal-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .modal-tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: inherit;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+        }
+
+        .input-range {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .lecture-inputs {
+            margin-bottom: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--highlight-color);
+        }
+
+        .lecture-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .lecture-input-row input {
+            flex: 1;
+        }
+
+        .remove-lecture-btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-lecture-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: inherit;
+        }
+
+        .add-lecture-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .modal-btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .modal-btn-secondary {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        /* Flip button */
+        .flip-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .flip-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* Course lectures sidebar */
+        .course-lectures-sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 10;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-lectures-sidebar.hidden {
+            transform: translateX(100%);
+            position: absolute;
+            height: 100%;
+            right: 0;
+        }
+
+        .course-lectures-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .course-lectures-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .close-course-lectures {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 1024px) {
+            .triple-view {
+                flex-direction: column;
+            }
+
+            .pdf-viewer-section {
+                flex: 0 0 40%;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .video-notes-split {
+                flex: 1;
+            }
+
+            .course-lectures-sidebar {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80%;
+                position: absolute;
+                height: 100%;
+                z-index: 20;
+            }
+
+            .pdf-viewer-section {
+                flex: 0 0 50%;
+            }
+
+            .course-lectures-sidebar {
+                width: 80%;
+            }
+
+            .course-title-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .course-controls {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        /* Font classes */
+        .font-patrick-hand {
+            font-family: 'Patrick Hand', cursive;
+        }
+
+        .font-kalam {
+            font-family: 'Kalam', cursive;
+        }
+
+        .font-bold {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar sidebar-hidden">
+            <div class="sidebar-header">
+                <div class="sidebar-title">StudyMate</div>
+                <button class="close-sidebar">&times;</button>
+            </div>
+            
+            <div class="sidebar-tabs">
+                <div class="sidebar-tab active" data-tab="home">Home</div>
+                <div class="sidebar-tab" data-tab="media">Media</div>
+                <div class="sidebar-tab" data-tab="courses">Courses</div>
+            </div>
+            
+            <div class="sidebar-content active" id="home-tab">
+                <div class="sidebar-section">
+                    <button class="sidebar-btn" id="home-btn">
+                        <i class="fas fa-home"></i> Refresh Home
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-content" id="media-tab">
+                <div class="sidebar-section">
+                    <button class="sidebar-btn" id="open-pdf-btn">
+                        <i class="fas fa-file-pdf"></i> Open PDF
+                    </button>
+                    <button class="sidebar-btn" id="open-video-btn">
+                        <i class="fas fa-video"></i> Open Video
+                    </button>
+                    <button class="sidebar-btn" id="open-youtube-btn">
+                        <i class="fab fa-youtube"></i> YouTube Video
+                    </button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Saved Notes</h3>
+                    <div class="saved-notes-list" id="saved-notes-list">
+                        <!-- Saved notes will appear here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-content" id="courses-tab">
+                <div class="sidebar-section">
+                    <button class="sidebar-btn" id="create-course-btn">
+                        <i class="fas fa-plus-circle"></i> Create New Course
+                    </button>
+                    <button class="sidebar-btn" id="show-course-lectures-btn">
+                        <i class="fas fa-list"></i> Show Lectures
+                    </button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>My Courses</h3>
+                    <div class="saved-courses-list" id="saved-courses-list">
+                        <!-- Saved courses will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <button class="menu-btn" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="app-title">StudyMate</div>
+                <div class="top-bar-actions">
+                    <select class="theme-selector" id="theme-selector">
+                        <option value="light">Light</option>
+                        <option value="sepia">Sepia</option>
+                        <option value="green">Green</option>
+                        <option value="blue">Blue</option>
+                        <option value="pink">Pink</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                    <select class="font-selector" id="font-selector">
+                        <option value="patrick-hand">Patrick Hand</option>
+                        <option value="kalam">Kalam</option>
+                        <option value="bold">Bold</option>
+                    </select>
+                    <button class="flip-btn" id="flip-btn">
+                        <i class="fas fa-exchange-alt"></i> Flip Layout
+                    </button>
+                    <button class="fullscreen-toggle" id="fullscreen-toggle">
+                        <i class="fas fa-expand"></i> Fullscreen
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Course Title Bar -->
+            <div class="course-title-bar" id="course-title-bar" style="display: none;">
+                <div class="course-title" id="current-course-title">No Course Selected</div>
+                <div class="course-controls">
+                    <button class="course-control-btn" id="prev-lecture-btn">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <button class="course-control-btn" id="next-lecture-btn">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Triple View -->
+            <div class="triple-view">
+                <!-- Split View for Video and Notes (left side) -->
+                <div class="video-notes-split">
+                    <!-- Video Viewer (top, custom height) -->
+                    <div class="video-viewer">
+                        <div class="video-controls" id="video-controls">
+                            <!-- Video controls will appear here -->
+                        </div>
+                        <div class="video-container" id="video-container">
+                            <div class="empty-state">
+                                <i class="fas fa-video"></i>
+                                <h3>No Video Loaded</h3>
+                                <p>Open a video, paste a YouTube link, or select a lecture from a course</p>
+                            </div>
+                        </div>
+                        <div class="video-resize-handle" id="video-resize-handle"></div>
+                    </div>
+                    
+                    <!-- Notes Panel (bottom) -->
+                    <div class="notes-panel">
+                        <div class="notes-header">
+                            <div class="notes-title">Notes</div>
+                        </div>
+                        
+                        <div class="formatting-toolbar">
+                            <button class="format-btn" data-command="bold" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button class="format-btn" data-command="italic" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button class="format-btn" data-command="underline" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <button class="format-btn" data-command="insertUnorderedList" title="Bullet List">
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button class="format-btn" data-command="insertOrderedList" title="Numbered List">
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="notes-editor" id="notes-editor" contenteditable="true"></div>
+                        
+                        <div class="notes-footer">
+                            <button class="save-btn" id="save-btn" disabled>
+                                <i class="fas fa-save"></i> Save Notes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PDF Viewer (right side, custom width) -->
+                <div class="pdf-viewer-section">
+                    <div class="pdf-controls" id="pdf-controls">
+                        <!-- PDF controls will appear here -->
+                    </div>
+                    <div class="pdf-container" id="pdf-container">
+                        <div class="empty-state">
+                            <i class="fas fa-file-pdf"></i>
+                            <h3>No PDF Loaded</h3>
+                            <p>Open a PDF to begin</p>
+                        </div>
+                    </div>
+                    <button class="fullscreen-btn" id="pdf-fullscreen-btn">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <div class="pdf-resize-handle" id="pdf-resize-handle"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Course Lectures Sidebar -->
+        <div class="course-lectures-sidebar hidden" id="course-lectures-sidebar">
+            <div class="course-lectures-header">
+                <div class="course-lectures-title" id="course-lectures-title">Course Lectures</div>
+                <button class="close-course-lectures" id="close-course-lectures">&times;</button>
+            </div>
+            <div class="sidebar-section">
+                <div class="course-lectures-list" id="course-lectures-list">
+                    <!-- Course lectures will appear here -->
+                    <div class="empty-state">
+                        <i class="fas fa-list"></i>
+                        <p>Select a course to view lectures</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fullscreen Containers -->
+    <div class="fullscreen-container" id="pdf-fullscreen">
+        <div class="fullscreen-header">
+            <div class="fullscreen-title">PDF Fullscreen</div>
+            <button class="exit-fullscreen-btn" id="exit-pdf-fullscreen">&times;</button>
+        </div>
+        <div class="fullscreen-content" id="pdf-fullscreen-content"></div>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal" id="youtube-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Add YouTube Video</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="input-group">
+                <label for="youtube-url">YouTube Video URL</label>
+                <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" id="cancel-youtube-btn">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="load-youtube-btn">Load Video</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="save-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Save Notes</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="input-group">
+                <label for="note-title">Note Title</label>
+                <input type="text" id="note-title" placeholder="My Study Notes">
+            </div>
+            <div class="input-group">
+                <label for="note-subject">Subject/Topic</label>
+                <input type="text" id="note-subject" placeholder="e.g., Biology, Chapter 3">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" id="cancel-save-btn">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="confirm-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="course-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create New Course</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-tabs">
+                <div class="modal-tab active" data-tab="single">Single Lectures</div>
+                <div class="modal-tab" data-tab="playlist">YouTube Playlist</div>
+            </div>
+            
+            <div id="single-course-tab" class="modal-tab-content">
+                <div class="input-group">
+                    <label for="course-title">Course Title</label>
+                    <input type="text" id="course-title" placeholder="e.g., Advanced Mathematics">
+                </div>
+                <div class="input-group">
+                    <label for="course-description">Course Description (Optional)</label>
+                    <textarea id="course-description" placeholder="Brief description of the course..." rows="3"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>Lecture Links (YouTube URLs)</label>
+                    <div class="lecture-inputs" id="lecture-inputs">
+                        <div class="lecture-input-row">
+                            <input type="text" class="lecture-url" placeholder="https://www.youtube.com/watch?v=...">
+                            <button class="remove-lecture-btn" onclick="removeLectureInput(this)">&times;</button>
+                        </div>
+                    </div>
+                    <button class="add-lecture-btn" id="add-lecture-btn">
+                        <i class="fas fa-plus"></i> Add Another Lecture
+                    </button>
+                </div>
+            </div>
+            
+            <div id="playlist-course-tab" class="modal-tab-content" style="display: none;">
+                <div class="input-group">
+                    <label for="playlist-title">Course Title</label>
+                    <input type="text" id="playlist-title" placeholder="e.g., Advanced Mathematics">
+                </div>
+                <div class="input-group">
+                    <label for="playlist-description">Course Description (Optional)</label>
+                    <textarea id="playlist-description" placeholder="Brief description of the course..." rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="playlist-url">YouTube Playlist URL</label>
+                    <input type="text" id="playlist-url" placeholder="https://www.youtube.com/playlist?list=...">
+                    <small style="color: var(--text-color); opacity: 0.7; margin-top: 5px; display: block;">
+                        Paste a YouTube playlist URL to automatically fetch all videos
+                    </small>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" id="cancel-course-btn">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="create-course-modal-btn">Create Course</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.getElementById('menu-btn');
+            const closeSidebarBtn = document.querySelector('.close-sidebar');
+            const sidebarTabs = document.querySelectorAll('.sidebar-tab');
+            const sidebarContents = document.querySelectorAll('.sidebar-content');
+            const themeSelector = document.getElementById('theme-selector');
+            const fontSelector = document.getElementById('font-selector');
+            const fullscreenToggle = document.getElementById('fullscreen-toggle');
+            const flipBtn = document.getElementById('flip-btn');
+            const openPdfBtn = document.getElementById('open-pdf-btn');
+            const openVideoBtn = document.getElementById('open-video-btn');
+            const openYoutubeBtn = document.getElementById('open-youtube-btn');
+            const homeBtn = document.getElementById('home-btn');
+            const pdfContainer = document.getElementById('pdf-container');
+            const pdfControls = document.getElementById('pdf-controls');
+            const videoContainer = document.getElementById('video-container');
+            const videoControls = document.getElementById('video-controls');
+            const notesEditor = document.getElementById('notes-editor');
+            const saveBtn = document.getElementById('save-btn');
+            const savedNotesList = document.getElementById('saved-notes-list');
+            const youtubeModal = document.getElementById('youtube-modal');
+            const youtubeUrlInput = document.getElementById('youtube-url');
+            const loadYoutubeBtn = document.getElementById('load-youtube-btn');
+            const cancelYoutubeBtn = document.getElementById('cancel-youtube-btn');
+            const saveModal = document.getElementById('save-modal');
+            const noteTitleInput = document.getElementById('note-title');
+            const noteSubjectInput = document.getElementById('note-subject');
+            const confirmSaveBtn = document.getElementById('confirm-save-btn');
+            const cancelSaveBtn = document.getElementById('cancel-save-btn');
+            
+            // Course elements
+            const createCourseBtn = document.getElementById('create-course-btn');
+            const showCourseLecturesBtn = document.getElementById('show-course-lectures-btn');
+            const courseModal = document.getElementById('course-modal');
+            const courseTitleBar = document.getElementById('course-title-bar');
+            const currentCourseTitle = document.getElementById('current-course-title');
+            const prevLectureBtn = document.getElementById('prev-lecture-btn');
+            const nextLectureBtn = document.getElementById('next-lecture-btn');
+            const savedCoursesList = document.getElementById('saved-courses-list');
+            const courseLecturesSidebar = document.getElementById('course-lectures-sidebar');
+            const courseLecturesList = document.getElementById('course-lectures-list');
+            const courseLecturesTitle = document.getElementById('course-lectures-title');
+            const closeCourseLecturesBtn = document.getElementById('close-course-lectures');
+            
+            // Course modal elements
+            const modalTabs = document.querySelectorAll('.modal-tab');
+            const singleCourseTab = document.getElementById('single-course-tab');
+            const playlistCourseTab = document.getElementById('playlist-course-tab');
+            const addLectureBtn = document.getElementById('add-lecture-btn');
+            const lectureInputs = document.getElementById('lecture-inputs');
+            const createCourseModalBtn = document.getElementById('create-course-modal-btn');
+            const cancelCourseBtn = document.getElementById('cancel-course-btn');
+            
+            // Fullscreen elements
+            const pdfFullscreenBtn = document.getElementById('pdf-fullscreen-btn');
+            const pdfFullscreen = document.getElementById('pdf-fullscreen');
+            const pdfFullscreenContent = document.getElementById('pdf-fullscreen-content');
+            const exitPdfFullscreen = document.getElementById('exit-pdf-fullscreen');
+            
+            // Resize handles
+            const pdfResizeHandle = document.getElementById('pdf-resize-handle');
+            const videoResizeHandle = document.getElementById('video-resize-handle');
+            
+            // App State
+            let currentPdf = null;
+            let currentVideo = null;
+            let currentMediaType = null;
+            let currentNoteId = null;
+            let isFullscreenMode = false;
+            let isLayoutFlipped = false;
+            let savedNotes = JSON.parse(localStorage.getItem('studymate-notes')) || [];
+            let savedCourses = JSON.parse(localStorage.getItem('studymate-courses')) || [];
+            let currentCourse = null;
+            let currentLectureIndex = -1;
+            let layoutSettings = JSON.parse(localStorage.getItem('studymate-layout')) || {
+                pdfWidth: '40%',
+                videoHeight: '60%'
+            };
+            
+            // Initialize the app
+            init();
+            
+            function init() {
+                // Apply layout settings
+                applyLayoutSettings();
+                
+                // Load saved data
+                updateSavedNotesList();
+                updateSavedCoursesList();
+                
+                // Set up event listeners
+                setupEventListeners();
+                
+                // Load selected theme
+                const savedTheme = localStorage.getItem('studymate-theme') || 'light';
+                themeSelector.value = savedTheme;
+                applyTheme(savedTheme);
+                
+                // Load selected font
+                const savedFont = localStorage.getItem('studymate-font') || 'patrick-hand';
+                fontSelector.value = savedFont;
+                applyFont(savedFont);
+                
+                // Load flip setting
+                isLayoutFlipped = localStorage.getItem('studymate-flipped') === 'true';
+                if (isLayoutFlipped) {
+                    flipLayout();
+                }
+                
+                // Initially hide fullscreen button
+                pdfFullscreenBtn.style.display = 'none';
+                
+                // Hide course title bar initially
+                courseTitleBar.style.display = 'none';
+            }
+            
+            function applyLayoutSettings() {
+                document.documentElement.style.setProperty('--pdf-width', layoutSettings.pdfWidth);
+                document.documentElement.style.setProperty('--video-height', layoutSettings.videoHeight);
+            }
+            
+            function setupEventListeners() {
+                // Sidebar toggle
+                menuBtn.addEventListener('click', toggleSidebar);
+                closeSidebarBtn.addEventListener('click', toggleSidebar);
+                
+                // Sidebar tabs
+                sidebarTabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const tabId = this.getAttribute('data-tab');
+                        sidebarTabs.forEach(t => t.classList.remove('active'));
+                        sidebarContents.forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        document.getElementById(`${tabId}-tab`).classList.add('active');
+                    });
+                });
+                
+                // Home button
+                homeBtn.addEventListener('click', () => {
+                    location.reload();
+                });
+                
+                // Theme selection
+                themeSelector.addEventListener('change', function() {
+                    const selectedTheme = this.value;
+                    applyTheme(selectedTheme);
+                    localStorage.setItem('studymate-theme', selectedTheme);
+                });
+                
+                // Font selection
+                fontSelector.addEventListener('change', function() {
+                    const selectedFont = this.value;
+                    applyFont(selectedFont);
+                    localStorage.setItem('studymate-font', selectedFont);
+                });
+                
+                // Flip layout toggle
+                flipBtn.addEventListener('click', function() {
+                    isLayoutFlipped = !isLayoutFlipped;
+                    localStorage.setItem('studymate-flipped', isLayoutFlipped);
+                    flipLayout();
+                });
+                
+                // Fullscreen toggle
+                fullscreenToggle.addEventListener('click', toggleFullscreenMode);
+                
+                // PDF button
+                openPdfBtn.addEventListener('click', () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.pdf';
+                    input.onchange = e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            loadPdf(file);
+                        }
+                    };
+                    input.click();
+                });
+                
+                // Video button
+                openVideoBtn.addEventListener('click', () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'video/*';
+                    input.onchange = e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            loadVideo(file);
+                        }
+                    };
+                    input.click();
+                });
+                
+                // YouTube button
+                openYoutubeBtn.addEventListener('click', () => {
+                    youtubeModal.style.display = 'flex';
+                    youtubeUrlInput.focus();
+                });
+                
+                // YouTube modal
+                loadYoutubeBtn.addEventListener('click', loadYouTubeVideo);
+                cancelYoutubeBtn.addEventListener('click', () => {
+                    youtubeModal.style.display = 'none';
+                });
+                
+                // Notes editor
+                notesEditor.addEventListener('input', () => {
+                    saveBtn.disabled = false;
+                });
+                
+                // Formatting buttons
+                document.querySelectorAll('.format-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const command = this.getAttribute('data-command');
+                        document.execCommand(command, false, null);
+                        notesEditor.focus();
+                    });
+                });
+                
+                // Save notes
+                saveBtn.addEventListener('click', () => {
+                    saveModal.style.display = 'flex';
+                    noteTitleInput.focus();
+                    
+                    // Set default title if media is loaded
+                    if (currentMediaType) {
+                        let defaultTitle = 'My Notes';
+                        if (currentPdf) {
+                            defaultTitle = currentPdf.name.replace('.pdf', '') + ' Notes';
+                        } else if (currentVideo) {
+                            defaultTitle = currentVideo.name.replace(/\.[^/.]+$/, '') + ' Notes';
+                        }
+                        noteTitleInput.value = defaultTitle;
+                    }
+                });
+                
+                // Save modal
+                confirmSaveBtn.addEventListener('click', saveNotes);
+                cancelSaveBtn.addEventListener('click', () => {
+                    saveModal.style.display = 'none';
+                });
+                
+                // PDF fullscreen button
+                pdfFullscreenBtn.addEventListener('click', enterPdfFullscreen);
+                
+                // Exit PDF fullscreen button
+                exitPdfFullscreen.addEventListener('click', () => exitFullscreen('pdf'));
+                
+                // Course creation button
+                createCourseBtn.addEventListener('click', () => {
+                    courseModal.style.display = 'flex';
+                    document.getElementById('course-title').focus();
+                });
+                
+                // Show course lectures button
+                showCourseLecturesBtn.addEventListener('click', toggleCourseLecturesSidebar);
+                
+                // Close course lectures sidebar
+                closeCourseLecturesBtn.addEventListener('click', toggleCourseLecturesSidebar);
+                
+                // Course modal tabs
+                modalTabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const tabId = this.getAttribute('data-tab');
+                        modalTabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        if (tabId === 'single') {
+                            singleCourseTab.style.display = 'block';
+                            playlistCourseTab.style.display = 'none';
+                        } else {
+                            singleCourseTab.style.display = 'none';
+                            playlistCourseTab.style.display = 'block';
+                        }
+                    });
+                });
+                
+                // Add lecture button
+                addLectureBtn.addEventListener('click', addLectureInput);
+                
+                // Create course button
+                createCourseModalBtn.addEventListener('click', createCourse);
+                
+                // Cancel course button
+                cancelCourseBtn.addEventListener('click', () => {
+                    courseModal.style.display = 'none';
+                    resetCourseModal();
+                });
+                
+                // Course navigation buttons
+                prevLectureBtn.addEventListener('click', () => {
+                    if (currentCourse && currentLectureIndex > 0) {
+                        currentLectureIndex--;
+                        loadLecture(currentLectureIndex);
+                    }
+                });
+                
+                nextLectureBtn.addEventListener('click', () => {
+                    if (currentCourse && currentLectureIndex < currentCourse.lectures.length - 1) {
+                        currentLectureIndex++;
+                        loadLecture(currentLectureIndex);
+                    }
+                });
+                
+                // Panel resizing
+                setupPanelResizing();
+                
+                // Close modals when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (e.target === youtubeModal) youtubeModal.style.display = 'none';
+                    if (e.target === saveModal) saveModal.style.display = 'none';
+                    if (e.target === courseModal) {
+                        courseModal.style.display = 'none';
+                        resetCourseModal();
+                    }
+                    if (e.target === pdfFullscreen) exitFullscreen('pdf');
+                });
+                
+                // Close course lectures sidebar when clicking outside on mobile
+                window.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && 
+                        !courseLecturesSidebar.contains(e.target) && 
+                        !showCourseLecturesBtn.contains(e.target) &&
+                        !courseLecturesSidebar.classList.contains('hidden')) {
+                        toggleCourseLecturesSidebar();
+                    }
+                });
+            }
+            
+            function addLectureInput() {
+                const lectureRow = document.createElement('div');
+                lectureRow.className = 'lecture-input-row';
+                lectureRow.innerHTML = `
+                    <input type="text" class="lecture-url" placeholder="https://www.youtube.com/watch?v=...">
+                    <button class="remove-lecture-btn" onclick="removeLectureInput(this)">&times;</button>
+                `;
+                lectureInputs.appendChild(lectureRow);
+            }
+            
+            // Make removeLectureInput available globally
+            window.removeLectureInput = function(button) {
+                const lectureRow = button.closest('.lecture-input-row');
+                if (lectureRow && lectureInputs.children.length > 1) {
+                    lectureRow.remove();
+                }
+            };
+            
+            function resetCourseModal() {
+                document.getElementById('course-title').value = '';
+                document.getElementById('course-description').value = '';
+                document.getElementById('playlist-title').value = '';
+                document.getElementById('playlist-description').value = '';
+                document.getElementById('playlist-url').value = '';
+                
+                // Reset to single tab
+                modalTabs.forEach(t => t.classList.remove('active'));
+                modalTabs[0].classList.add('active');
+                singleCourseTab.style.display = 'block';
+                playlistCourseTab.style.display = 'none';
+                
+                // Reset lecture inputs to just one
+                lectureInputs.innerHTML = `
+                    <div class="lecture-input-row">
+                        <input type="text" class="lecture-url" placeholder="https://www.youtube.com/watch?v=...">
+                        <button class="remove-lecture-btn" onclick="removeLectureInput(this)">&times;</button>
+                    </div>
+                `;
+            }
+            
+            function createCourse() {
+                const activeTab = document.querySelector('.modal-tab.active').getAttribute('data-tab');
+                
+                if (activeTab === 'single') {
+                    createSingleCourse();
+                } else {
+                    createPlaylistCourse();
+                }
+            }
+            
+            function createSingleCourse() {
+                const title = document.getElementById('course-title').value.trim();
+                const description = document.getElementById('course-description').value.trim();
+                const lectureUrls = Array.from(document.querySelectorAll('.lecture-url'))
+                    .map(input => input.value.trim())
+                    .filter(url => url !== '');
+                
+                if (!title) {
+                    alert('Please enter a course title');
+                    return;
+                }
+                
+                if (lectureUrls.length === 0) {
+                    alert('Please add at least one lecture URL');
+                    return;
+                }
+                
+                // Validate YouTube URLs
+                const validLectures = [];
+                for (let url of lectureUrls) {
+                    const videoId = extractYouTubeVideoId(url);
+                    if (videoId) {
+                        validLectures.push({
+                            url,
+                            videoId,
+                            title: `Lecture ${validLectures.length + 1}`
+                        });
+                    } else {
+                        alert(`"${url}" is not a valid YouTube URL. Only YouTube videos are supported.`);
+                        return;
+                    }
+                }
+                
+                const course = {
+                    id: Date.now().toString(),
+                    title,
+                    description,
+                    type: 'single',
+                    lectures: validLectures,
+                    created: new Date().toISOString(),
+                    formattedDate: new Date().toLocaleString()
+                };
+                
+                savedCourses.unshift(course);
+                localStorage.setItem('studymate-courses', JSON.stringify(savedCourses));
+                
+                updateSavedCoursesList();
+                courseModal.style.display = 'none';
+                resetCourseModal();
+                alert('Course created successfully!');
+            }
+            
+            function createPlaylistCourse() {
+                const title = document.getElementById('playlist-title').value.trim();
+                const description = document.getElementById('playlist-description').value.trim();
+                const playlistUrl = document.getElementById('playlist-url').value.trim();
+                
+                if (!title) {
+                    alert('Please enter a course title');
+                    return;
+                }
+                
+                if (!playlistUrl) {
+                    alert('Please enter a YouTube playlist URL');
+                    return;
+                }
+                
+                // Extract playlist ID
+                const playlistId = extractYouTubePlaylistId(playlistUrl);
+                if (!playlistId) {
+                    alert('Please enter a valid YouTube playlist URL');
+                    return;
+                }
+                
+                const course = {
+                    id: Date.now().toString(),
+                    title,
+                    description,
+                    type: 'playlist',
+                    playlistUrl,
+                    playlistId,
+                    created: new Date().toISOString(),
+                    formattedDate: new Date().toLocaleString()
+                };
+                
+                savedCourses.unshift(course);
+                localStorage.setItem('studymate-courses', JSON.stringify(savedCourses));
+                
+                updateSavedCoursesList();
+                courseModal.style.display = 'none';
+                resetCourseModal();
+                alert('Playlist course created successfully!');
+            }
+            
+            function extractYouTubeVideoId(url) {
+                const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[7].length === 11) ? match[7] : null;
+            }
+            
+            function extractYouTubePlaylistId(url) {
+                const regExp = /[&?]list=([^&]+)/i;
+                const match = url.match(regExp);
+                return match ? match[1] : null;
+            }
+            
+            function updateSavedCoursesList() {
+                savedCoursesList.innerHTML = '';
+                
+                if (savedCourses.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.textContent = 'No courses yet. Create one!';
+                    emptyMsg.style.padding = '10px';
+                    emptyMsg.style.color = 'var(--text-color)';
+                    emptyMsg.style.opacity = '0.7';
+                    savedCoursesList.appendChild(emptyMsg);
+                    return;
+                }
+                
+                savedCourses.forEach(course => {
+                    const courseItem = document.createElement('div');
+                    courseItem.className = 'saved-course-item';
+                    courseItem.dataset.id = course.id;
+                    
+                    const courseInfo = document.createElement('div');
+                    courseInfo.innerHTML = `
+                        <strong>${course.title}</strong><br>
+                        <small>${course.type === 'single' ? `${course.lectures.length} lectures` : 'YouTube Playlist'} • ${course.formattedDate}</small>
+                    `;
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'item-delete';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteCourse(course.id);
+                    });
+                    
+                    courseItem.appendChild(courseInfo);
+                    courseItem.appendChild(deleteBtn);
+                    
+                    courseItem.addEventListener('click', () => {
+                        loadCourse(course);
+                    });
+                    
+                    savedCoursesList.appendChild(courseItem);
+                });
+            }
+            
+            function loadCourse(course) {
+                currentCourse = course;
+                currentLectureIndex = 0;
+                
+                // Update UI
+                currentCourseTitle.textContent = course.title;
+                courseTitleBar.style.display = 'flex';
+                
+                // Update lectures sidebar
+                updateCourseLecturesList();
+                
+                // Load first lecture if course has lectures
+                if (course.type === 'single' && course.lectures.length > 0) {
+                    loadLecture(0);
+                } else if (course.type === 'playlist') {
+                    loadPlaylist(course);
+                }
+                
+                // Close sidebar
+                toggleSidebar();
+            }
+            
+            function loadLecture(index) {
+                if (!currentCourse || currentCourse.type !== 'single' || index < 0 || index >= currentCourse.lectures.length) {
+                    return;
+                }
+                
+                const lecture = currentCourse.lectures[index];
+                currentLectureIndex = index;
+                
+                // Update video player
+                videoContainer.innerHTML = '';
+                const youtubeEmbed = document.createElement('iframe');
+                youtubeEmbed.className = 'youtube-player';
+                youtubeEmbed.src = `https://www.youtube.com/embed/${lecture.videoId}?enablejsapi=1`;
+                youtubeEmbed.setAttribute('frameborder', '0');
+                youtubeEmbed.setAttribute('allowfullscreen', '');
+                youtubeEmbed.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                videoContainer.appendChild(youtubeEmbed);
+                
+                // Update active lecture in sidebar
+                updateActiveLecture();
+                
+                // Clear notes editor
+                notesEditor.innerHTML = '';
+                saveBtn.disabled = true;
+            }
+            
+            function loadPlaylist(course) {
+                if (!course || course.type !== 'playlist') return;
+                
+                // Update video player with playlist
+                videoContainer.innerHTML = '';
+                const youtubeEmbed = document.createElement('iframe');
+                youtubeEmbed.className = 'youtube-player';
+                youtubeEmbed.src = `https://www.youtube.com/embed/videoseries?list=${course.playlistId}`;
+                youtubeEmbed.setAttribute('frameborder', '0');
+                youtubeEmbed.setAttribute('allowfullscreen', '');
+                youtubeEmbed.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                videoContainer.appendChild(youtubeEmbed);
+                
+                // Clear notes editor
+                notesEditor.innerHTML = '';
+                saveBtn.disabled = true;
+            }
+            
+            function updateCourseLecturesList() {
+                courseLecturesTitle.textContent = currentCourse ? currentCourse.title : 'Course Lectures';
+                courseLecturesList.innerHTML = '';
+                
+                if (!currentCourse) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'empty-state';
+                    emptyMsg.innerHTML = `
+                        <i class="fas fa-list"></i>
+                        <p>Select a course to view lectures</p>
+                    `;
+                    courseLecturesList.appendChild(emptyMsg);
+                    return;
+                }
+                
+                if (currentCourse.type === 'single') {
+                    currentCourse.lectures.forEach((lecture, index) => {
+                        const lectureItem = document.createElement('div');
+                        lectureItem.className = 'lecture-item';
+                        if (index === currentLectureIndex) {
+                            lectureItem.classList.add('active');
+                        }
+                        lectureItem.dataset.index = index;
+                        
+                        const lectureInfo = document.createElement('div');
+                        lectureInfo.innerHTML = `
+                            <strong>Lecture ${index + 1}</strong><br>
+                            <small>${lecture.videoId}</small>
+                        `;
+                        
+                        lectureItem.appendChild(lectureInfo);
+                        
+                        lectureItem.addEventListener('click', () => {
+                            loadLecture(index);
+                        });
+                        
+                        courseLecturesList.appendChild(lectureItem);
+                    });
+                } else {
+                    // For playlist courses, show a message
+                    const playlistInfo = document.createElement('div');
+                    playlistInfo.className = 'empty-state';
+                    playlistInfo.innerHTML = `
+                        <i class="fab fa-youtube"></i>
+                        <p>YouTube Playlist</p>
+                        <small>Use the YouTube player to navigate through the playlist</small>
+                    `;
+                    courseLecturesList.appendChild(playlistInfo);
+                }
+            }
+            
+            function updateActiveLecture() {
+                const lectureItems = courseLecturesList.querySelectorAll('.lecture-item');
+                lectureItems.forEach((item, index) => {
+                    if (index === currentLectureIndex) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                // Update navigation buttons
+                prevLectureBtn.disabled = currentLectureIndex <= 0;
+                nextLectureBtn.disabled = currentLectureIndex >= currentCourse.lectures.length - 1;
+            }
+            
+            function deleteCourse(courseId) {
+                if (confirm('Are you sure you want to delete this course?')) {
+                    savedCourses = savedCourses.filter(course => course.id !== courseId);
+                    localStorage.setItem('studymate-courses', JSON.stringify(savedCourses));
+                    
+                    if (currentCourse && currentCourse.id === courseId) {
+                        currentCourse = null;
+                        currentLectureIndex = -1;
+                        courseTitleBar.style.display = 'none';
+                        videoContainer.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-video"></i>
+                                <h3>No Video Loaded</h3>
+                            </div>
+                        `;
+                        updateCourseLecturesList();
+                    }
+                    
+                    updateSavedCoursesList();
+                }
+            }
+            
+            function toggleCourseLecturesSidebar() {
+                courseLecturesSidebar.classList.toggle('hidden');
+                
+                // Update button text
+                if (courseLecturesSidebar.classList.contains('hidden')) {
+                    showCourseLecturesBtn.innerHTML = '<i class="fas fa-list"></i> Show Lectures';
+                } else {
+                    showCourseLecturesBtn.innerHTML = '<i class="fas fa-times"></i> Hide Lectures';
+                    updateCourseLecturesList();
+                }
+            }
+            
+            function setupPanelResizing() {
+                // PDF panel resizing
+                let isPdfResizing = false;
+                let startPdfX, startPdfWidth;
+                
+                pdfResizeHandle.addEventListener('mousedown', (e) => {
+                    isPdfResizing = true;
+                    startPdfX = e.clientX;
+                    startPdfWidth = parseInt(document.defaultView.getComputedStyle(pdfContainer).width, 10);
+                    document.body.style.userSelect = 'none'; // Prevent text selection during resize
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isPdfResizing) return;
+                    const width = startPdfWidth + (startPdfX - e.clientX);
+                    const containerWidth = document.querySelector('.triple-view').offsetWidth;
+                    const percentage = Math.min(Math.max((width / containerWidth) * 100, 20), 60);
+                    document.documentElement.style.setProperty('--pdf-width', `${percentage}%`);
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    isPdfResizing = false;
+                    document.body.style.userSelect = '';
+                });
+                
+                // Video panel resizing
+                let isVideoResizing = false;
+                let startVideoY, startVideoHeight;
+                
+                videoResizeHandle.addEventListener('mousedown', (e) => {
+                    isVideoResizing = true;
+                    startVideoY = e.clientY;
+                    startVideoHeight = parseInt(document.defaultView.getComputedStyle(videoContainer).height, 10);
+                    document.body.style.userSelect = 'none'; // Prevent text selection during resize
+                    e.preventDefault();
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isVideoResizing) return;
+                    const height = startVideoHeight + (startVideoY - e.clientY);
+                    const containerHeight = document.querySelector('.video-notes-split').offsetHeight;
+                    const percentage = Math.min(Math.max((height / containerHeight) * 100, 30), 80);
+                    document.documentElement.style.setProperty('--video-height', `${percentage}%`);
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    isVideoResizing = false;
+                    document.body.style.userSelect = '';
+                });
+            }
+            
+            function flipLayout() {
+                const tripleView = document.querySelector('.triple-view');
+                if (isLayoutFlipped) {
+                    tripleView.style.flexDirection = 'row-reverse';
+                } else {
+                    tripleView.style.flexDirection = 'row';
+                }
+            }
+            
+            function toggleSidebar() {
+                sidebar.classList.toggle('sidebar-hidden');
+            }
+            
+            function applyTheme(theme) {
+                document.body.className = `theme-${theme}`;
+            }
+            
+            function applyFont(font) {
+                document.body.classList.remove(
+                    'font-patrick-hand', 
+                    'font-kalam',
+                    'font-bold'
+                );
+                
+                document.body.classList.add(`font-${font}`);
+            }
+            
+            function toggleFullscreenMode() {
+                isFullscreenMode = !isFullscreenMode;
+                fullscreenToggle.classList.toggle('active');
+                
+                if (isFullscreenMode) {
+                    document.body.classList.add('fullscreen-mode');
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error('Error attempting to enable fullscreen:', err);
+                    });
+                } else {
+                    document.body.classList.remove('fullscreen-mode');
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                }
+            }
+            
+            function loadPdf(file) {
+                currentPdf = file;
+                currentMediaType = 'pdf';
+                currentNoteId = null;
+                
+                // Clear previous content
+                pdfContainer.innerHTML = '';
+                pdfControls.innerHTML = '';
+                
+                // Create PDF viewer
+                const pdfViewer = document.createElement('iframe');
+                pdfViewer.className = 'pdf-iframe';
+                pdfViewer.src = URL.createObjectURL(file);
+                pdfContainer.appendChild(pdfViewer);
+                
+                // Show fullscreen button
+                pdfFullscreenBtn.style.display = 'block';
+                
+                // Clear notes editor
+                notesEditor.innerHTML = '';
+                saveBtn.disabled = true;
+            }
+            
+            function loadVideo(file) {
+                currentVideo = file;
+                currentMediaType = 'video';
+                currentNoteId = null;
+                
+                // Clear previous content
+                videoContainer.innerHTML = '';
+                videoControls.innerHTML = '';
+                
+                // Create video player
+                const videoPlayer = document.createElement('video');
+                videoPlayer.className = 'video-player';
+                videoPlayer.src = URL.createObjectURL(file);
+                videoPlayer.controls = true;
+                videoContainer.appendChild(videoPlayer);
+                
+                // Clear notes editor
+                notesEditor.innerHTML = '';
+                saveBtn.disabled = true;
+            }
+            
+            function loadYouTubeVideo() {
+                const url = youtubeUrlInput.value.trim();
+                if (!url) return;
+                
+                // Simple URL validation
+                let videoId = '';
+                if (url.includes('youtube.com/watch?v=')) {
+                    videoId = url.split('v=')[1].split('&')[0];
+                } else if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split('?')[0];
+                } else {
+                    alert('Please enter a valid YouTube URL');
+                    return;
+                }
+                
+                currentVideo = { url, videoId };
+                currentMediaType = 'youtube';
+                currentNoteId = null;
+                
+                // Clear previous content
+                videoContainer.innerHTML = '';
+                videoControls.innerHTML = '';
+                
+                // Create YouTube embed
+                const youtubeEmbed = document.createElement('iframe');
+                youtubeEmbed.className = 'youtube-player';
+                youtubeEmbed.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+                youtubeEmbed.setAttribute('frameborder', '0');
+                youtubeEmbed.setAttribute('allowfullscreen', '');
+                youtubeEmbed.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                videoContainer.appendChild(youtubeEmbed);
+                
+                // Clear notes editor
+                notesEditor.innerHTML = '';
+                saveBtn.disabled = true;
+                
+                // Close modal
+                youtubeModal.style.display = 'none';
+                youtubeUrlInput.value = '';
+            }
+            
+            function enterPdfFullscreen() {
+                // FIX: Check if PDF is loaded, not currentMediaType
+                const pdfViewer = pdfContainer.querySelector('.pdf-iframe');
+                if (!pdfViewer) return;
+                
+                pdfFullscreen.style.display = 'flex';
+                
+                // Clone the PDF content
+                if (pdfViewer) {
+                    const clone = pdfViewer.cloneNode(true);
+                    clone.style.width = '100%';
+                    clone.style.height = '100%';
+                    pdfFullscreenContent.innerHTML = '';
+                    pdfFullscreenContent.appendChild(clone);
+                }
+            }
+            
+            function exitFullscreen(type) {
+                if (type === 'pdf') {
+                    pdfFullscreen.style.display = 'none';
+                    pdfFullscreenContent.innerHTML = '';
+                }
+            }
+            
+            function saveNotes() {
+                const title = noteTitleInput.value.trim();
+                const subject = noteSubjectInput.value.trim();
+                const content = notesEditor.innerHTML;
+                
+                if (!title) {
+                    alert('Please enter a title for your notes');
+                    return;
+                }
+                
+                const now = new Date();
+                const timestamp = now.toISOString();
+                const formattedDate = now.toLocaleString();
+                
+                // Create note object
+                const note = {
+                    id: currentNoteId || Date.now().toString(),
+                    title,
+                    subject,
+                    content,
+                    mediaType: currentMediaType,
+                    pdfInfo: currentPdf,
+                    videoInfo: currentVideo,
+                    timestamp,
+                    formattedDate
+                };
+                
+                // Update or add note
+                if (currentNoteId) {
+                    const index = savedNotes.findIndex(n => n.id === currentNoteId);
+                    if (index !== -1) {
+                        savedNotes[index] = note;
+                    }
+                } else {
+                    savedNotes.unshift(note);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('studymate-notes', JSON.stringify(savedNotes));
+                
+                // Update UI
+                updateSavedNotesList();
+                saveModal.style.display = 'none';
+                saveBtn.disabled = true;
+                noteTitleInput.value = '';
+                noteSubjectInput.value = '';
+                
+                // Set currentNoteId for future updates
+                currentNoteId = note.id;
+            }
+            
+            function updateSavedNotesList() {
+                savedNotesList.innerHTML = '';
+                
+                if (savedNotes.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.textContent = 'No saved notes yet';
+                    emptyMsg.style.padding = '10px';
+                    emptyMsg.style.color = 'var(--text-color)';
+                    emptyMsg.style.opacity = '0.7';
+                    savedNotesList.appendChild(emptyMsg);
+                    return;
+                }
+                
+                savedNotes.forEach(note => {
+                    const noteItem = document.createElement('div');
+                    noteItem.className = 'saved-note-item';
+                    noteItem.dataset.id = note.id;
+                    
+                    const noteInfo = document.createElement('div');
+                    noteInfo.innerHTML = `
+                        <strong>${note.title}</strong><br>
+                        <small>${note.subject || 'No subject'} • ${note.formattedDate}</small>
+                    `;
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'item-delete';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteNote(note.id);
+                    });
+                    
+                    noteItem.appendChild(noteInfo);
+                    noteItem.appendChild(deleteBtn);
+                    
+                    noteItem.addEventListener('click', () => {
+                        loadSavedNote(note);
+                    });
+                    
+                    savedNotesList.appendChild(noteItem);
+                });
+            }
+            
+            function loadSavedNote(note) {
+                currentNoteId = note.id;
+                currentMediaType = note.mediaType;
+                currentPdf = note.pdfInfo;
+                currentVideo = note.videoInfo;
+                
+                // Load PDF if exists
+                if (note.mediaType === 'pdf' && note.pdfInfo) {
+                    pdfContainer.innerHTML = '';
+                    const pdfViewer = document.createElement('iframe');
+                    pdfViewer.className = 'pdf-iframe';
+                    pdfViewer.src = URL.createObjectURL(new Blob([note.pdfInfo], { type: 'application/pdf' }));
+                    pdfContainer.appendChild(pdfViewer);
+                    pdfFullscreenBtn.style.display = 'block';
+                } else {
+                    pdfContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-file-pdf"></i>
+                            <h3>No PDF Loaded</h3>
+                        </div>
+                    `;
+                    pdfFullscreenBtn.style.display = 'none';
+                }
+                
+                // Load video if exists
+                if (note.mediaType === 'video' && note.videoInfo) {
+                    videoContainer.innerHTML = '';
+                    const videoPlayer = document.createElement('video');
+                    videoPlayer.className = 'video-player';
+                    videoPlayer.src = URL.createObjectURL(new Blob([note.videoInfo], { type: 'video/mp4' }));
+                    videoPlayer.controls = true;
+                    videoContainer.appendChild(videoPlayer);
+                } else if (note.mediaType === 'youtube' && note.videoInfo) {
+                    videoContainer.innerHTML = '';
+                    const youtubeEmbed = document.createElement('iframe');
+                    youtubeEmbed.className = 'youtube-player';
+                    youtubeEmbed.src = `https://www.youtube.com/embed/${note.videoInfo.videoId}?enablejsapi=1`;
+                    youtubeEmbed.setAttribute('frameborder', '0');
+                    youtubeEmbed.setAttribute('allowfullscreen', '');
+                    youtubeEmbed.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                    videoContainer.appendChild(youtubeEmbed);
+                } else {
+                    videoContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-video"></i>
+                            <h3>No Video Loaded</h3>
+                        </div>
+                    `;
+                }
+                
+                // Load notes content
+                notesEditor.innerHTML = note.content;
+                saveBtn.disabled = true;
+                
+                // Close sidebar
+                toggleSidebar();
+            }
+            
+            function deleteNote(noteId) {
+                if (confirm('Are you sure you want to delete this note?')) {
+                    savedNotes = savedNotes.filter(note => note.id !== noteId);
+                    localStorage.setItem('studymate-notes', JSON.stringify(savedNotes));
+                    
+                    if (currentNoteId === noteId) {
+                        currentNoteId = null;
+                        notesEditor.innerHTML = '';
+                        saveBtn.disabled = true;
+                    }
+                    
+                    updateSavedNotesList();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
